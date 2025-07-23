@@ -1,59 +1,57 @@
 <style>
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 20px;
-    margin: 20px;
-  }
-  .chart-box {
-    border: 1px solid #eee;
-    padding: 10px;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-  .chart-box h3 {
-    margin-top: 0;
-    font-size: 1.1em;
-  }
-  .span-2 { 
-    grid-column: span 2; 
-  }
-  .chart { 
-    width: 100%; 
-    height: 300px; 
-  }
+  .chart { width: 100%; height: 300px; }
 </style>
 
-<div class="charts-grid">
+<div class="row g-4">
 
-    <!-- Per-Process CPU Performance -->
-  <div class="chart-box span-2">
-    <h3>Per-Process CPU Usage</h3>
-    <div id="perProcessCpuChart" class="chart"></div>
+  <!-- Per-Process CPU Performance -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Per-Process CPU Usage</h5>
+        <div id="perProcessCpuChart" class="chart"></div>
+      </div>
+    </div>
   </div>
-  
-   <!-- Load Average Over Time -->
-  <div class="chart-box">
-    <h3>Load Average</h3>
-    <div id="loadAvgChart" class="chart"></div>
+
+  <!-- Load Average Over Time -->
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Load Average</h5>
+        <div id="loadAvgChart" class="chart"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Thread States Over Time -->
-  <div class="chart-box">
-    <h3>Thread States</h3>
-    <div id="threadStatesChart" class="chart"></div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Thread States</h5>
+        <div id="threadStatesChart" class="chart"></div>
+      </div>
+    </div>
   </div>
-  
+
   <!-- Memory Usage Over Time -->
-  <div class="chart-box">
-    <h3>Memory Usage</h3>
-    <div id="memoryUsageChart" class="chart"></div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Memory Usage</h5>
+        <div id="memoryUsageChart" class="chart"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Total CPU Breakdown -->
-  <div class="chart-box">
-    <h3>Total CPU Usage</h3>
-    <div id="totalCpuChart" class="chart"></div>
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Total CPU Usage</h5>
+        <div id="totalCpuChart" class="chart"></div>
+      </div>
+    </div>
   </div>
 
 </div>

@@ -37,7 +37,7 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	meta := "Some metadata"
 
 	// Run report generation
-	if err := GenerateReport(data, out, title, meta); err != nil {
+	if err := GenerateReport(data, out, title, meta, "input.top", "abc123"); err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
 	}
 
@@ -78,6 +78,13 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	if !strings.Contains(html, `"data":[0,0]`) {
 		t.Error("processCpuSeriesJson not found")
 	}
+	// Check for file name and hash
+	if !strings.Contains(html, "input.top") {
+		t.Error("missing file name")
+	}
+	if !strings.Contains(html, "abc123") {
+		t.Error("missing file hash")
+	}
 
 }
 
@@ -93,7 +100,7 @@ func TestGenerateReport_EscapesTitleAndMetadata(t *testing.T) {
 	badTitle := "<script>alert(\"xss\")</script>"
 	badMeta := "<b>bold</b>"
 	data := parser.ReportData{Snapshots: []parser.Snapshot{}}
-	if err := GenerateReport(data, out, badTitle, badMeta); err != nil {
+	if err := GenerateReport(data, out, badTitle, badMeta, "input.top", "abc123"); err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
 	}
 	b, err := os.ReadFile(out)

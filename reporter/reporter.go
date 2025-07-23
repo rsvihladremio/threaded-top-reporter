@@ -29,6 +29,9 @@ type SnapshotView struct {
 type ViewModel struct {
 	Title                string
 	Metadata             string
+	FileName             string
+	FileHash             string
+	FileHashShort        string
 	TimesJson            template.JS
 	CPUUserJson          template.JS
 	CPUSystemJson        template.JS
@@ -56,7 +59,7 @@ type ViewModel struct {
 }
 
 // GenerateReport generates an HTML report to outputPath using parsed data.
-func GenerateReport(data parser.ReportData, outputPath, title, metadata string) (err error) {
+func GenerateReport(data parser.ReportData, outputPath, title, metadata, fileName, fileHash string) (err error) {
 	// Sanitize output path
 	cleanOutput := filepath.Clean(outputPath)
 	if strings.Contains(cleanOutput, "..") {
@@ -262,9 +265,18 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 		return fmt.Errorf("marshal process cpu series: %w", err)
 	}
 
+	// compute short SHA for display
+	fileHashShort := fileHash
+	if len(fileHashShort) > 6 {
+		fileHashShort = fileHashShort[:6]
+	}
+
 	vm := ViewModel{
 		Title:                title,
 		Metadata:             metadata,
+		FileName:             fileName,
+		FileHash:             fileHash,
+		FileHashShort:        fileHashShort,
 		TimesJson:            template.JS(string(tj)),       // #nosec G203: safe – marshaled JSON only contains numbers and timestamps
 		CPUUserJson:          template.JS(string(cuJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
 		CPUSystemJson:        template.JS(string(csJson)),   // #nosec G203: safe – marshaled JSON only contains numbers

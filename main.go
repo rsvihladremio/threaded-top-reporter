@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"flag"
 	"fmt"
 	"log"
@@ -51,7 +52,9 @@ func main() {
 	}
 
 	// Generate report
-	if err := reporter.GenerateReport(parsedData, outputFile, reportTitle, metadata); err != nil {
+	fileName := filepath.Base(cleanInput)
+	fileHash := fmt.Sprintf("%x", sha256.Sum256(data))
+	if err := reporter.GenerateReport(parsedData, outputFile, reportTitle, metadata, fileName, fileHash); err != nil {
 		log.Fatalf("Error generating report: %v", err)
 	}
 
