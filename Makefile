@@ -28,7 +28,7 @@ setup:
 	@ACTUAL_GOLANGCI_LINT_VERSION=$$(golangci-lint --version 2>/dev/null | head -1 | awk '{print $$4}' || echo ""); \
 	if [ "$$ACTUAL_GOLANGCI_LINT_VERSION" != "$(EXPECTED_GOLANGCI_LINT_VERSION)" ]; then \
 	  echo >&2 "golangci-lint not found or version mismatch: expected $(EXPECTED_GOLANGCI_LINT_VERSION), got $$ACTUAL_GOLANGCI_LINT_VERSION. Installing..."; \
-	  go install github.com/golangci/golangci-lint/cmd/golangci-lint@v$(EXPECTED_GOLANGCI_LINT_VERSION) || { echo >&2 "Failed to install golangci-lint"; exit 1; }; \
+	  curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $$(go env GOPATH)/bin v$(EXPECTED_GOLANGCI_LINT_VERSION) || { echo >&2 "Failed to install golangci-lint"; exit 1; }; \
 	fi; \
 	echo "  ✓ golangci-lint $(EXPECTED_GOLANGCI_LINT_VERSION) is installed"
 
