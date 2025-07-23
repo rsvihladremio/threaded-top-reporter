@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+
+	"github.com/rsvihladremio/threaded-top-reporter/parser" // Import the parser package
 )
 
 func main() {
@@ -28,10 +30,13 @@ func main() {
 		log.Fatalf("Error reading input file: %v", err)
 	}
 
-	// Parse input (placeholder)
-	parsedData := parseTopOutput(data)
+	// Parse input using the new package
+	parsedData, err := parser.ParseTopOutput(data)
+	if err != nil {
+		log.Fatalf("Error parsing top output: %v", err)
+	}
 
-	// Generate report (placeholder)
+	// Generate report
 	if err := generateReport(parsedData, *outputFile, *reportTitle, *metadata); err != nil {
 		log.Fatalf("Error generating report: %v", err)
 	}
@@ -39,12 +44,18 @@ func main() {
 	fmt.Printf("report '%s' written to %s\n", *reportTitle, *outputFile)
 }
 
-func parseTopOutput(data []byte) interface{} {
-	// TODO: Implement actual parsing
-	return struct{}{}
-}
-
-func generateReport(data interface{}, outputPath, title, metadata string) error {
-	// TODO: Implement actual HTML generation
+func generateReport(data parser.ReportData, outputPath, title, metadata string) error {
+	// TODO: Implement actual HTML generation using the parsed data
+	fmt.Printf("Generating report with title: %s, metadata: %s\n", title, metadata)
+	// Example: Iterate through snapshots and then processes within each snapshot
+	totalProcesses := 0
+	for i, snapshot := range data.Snapshots {
+		totalProcesses += len(snapshot.Processes)
+		fmt.Printf("Snapshot %d: Number of processes: %d\n", i+1, len(snapshot.Processes))
+		for _, process := range snapshot.Processes {
+			fmt.Printf("  PID: %d, User: %s, CPU: %.2f, MEM: %.2f, Command: %s\n", process.PID, process.User, process.CPU, process.MEM, process.Command)
+		}
+	}
+	fmt.Printf("Total processes across all snapshots: %d\n", totalProcesses)
 	return nil
 }
