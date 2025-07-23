@@ -27,6 +27,8 @@ type Metadata struct {
 	CPUUser         float64
 	CPUSystem       float64
 	CPUIdle         float64
+	CPUWait         float64
+	CPUSteal        float64
 	MemTotal        float64
 	MemFree         float64
 	MemUsed         float64
@@ -214,9 +216,9 @@ func parseMetadata(line string, metadata *Metadata) error {
 		}
 
 	case key == "%Cpu(s)":
-        var ni, wa, hi, si, st float64
+        var ni, hi, si float64
         _, err := fmt.Sscanf(value, "%f us, %f sy, %f ni, %f id, %f wa, %f hi, %f si, %f st",
-            &metadata.CPUUser, &metadata.CPUSystem, &ni, &metadata.CPUIdle, &wa, &hi, &si, &st)
+            &metadata.CPUUser, &metadata.CPUSystem, &ni, &metadata.CPUIdle, &metadata.CPUWait, &hi, &si, &metadata.CPUSteal)
         if err != nil {
             return fmt.Errorf("error parsing CPU: %v", err)
         }

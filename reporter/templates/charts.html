@@ -1,0 +1,227 @@
+<style>
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 20px;
+    margin: 20px;
+  }
+  .chart-box {
+    border: 1px solid #eee;
+    padding: 10px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+  }
+  .chart-box h3 {
+    margin-top: 0;
+    font-size: 1.1em;
+  }
+  .span-2 { 
+    grid-column: span 2; 
+  }
+  .chart { 
+    width: 100%; 
+    height: 300px; 
+  }
+</style>
+
+<div class="charts-grid">
+
+    <!-- Per-Process CPU Performance -->
+  <div class="chart-box span-2">
+    <h3>Per-Process CPU Usage</h3>
+    <div id="perProcessCpuChart" class="chart"></div>
+  </div>
+  
+   <!-- Load Average Over Time -->
+  <div class="chart-box">
+    <h3>Load Average</h3>
+    <div id="loadAvgChart" class="chart"></div>
+  </div>
+
+  <!-- Thread States Over Time -->
+  <div class="chart-box">
+    <h3>Thread States</h3>
+    <div id="threadStatesChart" class="chart"></div>
+  </div>
+  
+  <!-- Memory Usage Over Time -->
+  <div class="chart-box">
+    <h3>Memory Usage</h3>
+    <div id="memoryUsageChart" class="chart"></div>
+  </div>
+
+  <!-- Total CPU Breakdown -->
+  <div class="chart-box">
+    <h3>Total CPU Usage</h3>
+    <div id="totalCpuChart" class="chart"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // Per-Process CPU Usage
+  var perProcessChart = echarts.init(document.getElementById('perProcessCpuChart'));
+  var perProcessOption = {
+    title: { text: '' },
+    tooltip: { trigger: 'item' },
+    legend: {
+      type: 'scroll',
+      orient: 'horizontal',
+      data: {{.ProcessNamesJson}},
+      bottom: 0
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {},
+        dataZoom: {},
+        dataView: { readOnly: false },
+        restore: {}
+      }
+    },
+    xAxis: { type: 'category', data: {{.TimesJson}} },
+    yAxis: { type: 'value', name: '% CPU' },
+    series: {{.ProcessCpuSeriesJson}}
+  };
+  perProcessChart.setOption(perProcessOption);
+
+  // Memory Usage
+  var memoryUsageChart = echarts.init(document.getElementById('memoryUsageChart'));
+  var memoryOption = {
+    tooltip: { trigger: 'axis' },
+    legend: { 
+      data: ['Total', 'Free', 'Used', 'Buff/Cache', 'Swap Total', 'Swap Free', 'Swap Used'],
+      bottom: 0
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {},
+        dataZoom: {},
+        dataView: { readOnly: false },
+        restore: {}
+      }
+    },
+    xAxis: { type: 'category', data: {{.TimesJson}} },
+    yAxis: { type: 'value', name: 'MiB' },
+    series: [
+      { name: 'Total', type: 'line', data: {{.MemTotalJson}} },
+      { name: 'Free', type: 'line', data: {{.MemFreeJson}} },
+      { name: 'Used', type: 'line', data: {{.MemUsedJson}} },
+      { name: 'Buff/Cache', type: 'line', data: {{.MemBuffCacheJson}} },
+      { name: 'Swap Total', type: 'line', data: {{.SwapTotalJson}} },
+      { name: 'Swap Free', type: 'line', data: {{.SwapFreeJson}} },
+      { name: 'Swap Used', type: 'line', data: {{.SwapUsedJson}} }
+    ]
+  };
+  memoryUsageChart.setOption(memoryOption);
+
+  // Total CPU Usage
+  var totalCpuChart = echarts.init(document.getElementById('totalCpuChart'));
+  var cpuOption = {
+    tooltip: { trigger: 'axis' },
+    legend: { 
+      data: ['User', 'System', 'Idle', 'IOWait', 'Steal'],
+      bottom: 0
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {},
+        dataZoom: {},
+        dataView: { readOnly: false },
+        restore: {}
+      }
+    },
+    xAxis: { type: 'category', data: {{.TimesJson}} },
+    yAxis: { type: 'value', name: '% CPU' },
+    series: [
+      { name: 'User', type: 'line', data: {{.CPUUserJson}} },
+      { name: 'System', type: 'line', data: {{.CPUSystemJson}} },
+      { name: 'Idle', type: 'line', data: {{.CPUIdleJson}} },
+      { name: 'IOWait', type: 'line', data: {{.CPUWaitJson}} },
+      { name: 'Steal', type: 'line', data: {{.CPUStealJson}} }
+    ]
+  };
+  totalCpuChart.setOption(cpuOption);
+
+  // Thread States
+  var threadStatesChart = echarts.init(document.getElementById('threadStatesChart'));
+  var threadsOption = {
+    tooltip: { trigger: 'axis' },
+    legend: { 
+      data: ['Total', 'Running', 'Sleeping', 'Stopped', 'Zombie'],
+      bottom: 0
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {},
+        dataZoom: {},
+        dataView: { readOnly: false },
+        restore: {}
+      }
+    },
+    xAxis: { type: 'category', data: {{.TimesJson}} },
+    yAxis: { type: 'value', name: 'Count' },
+    series: [
+      { name: 'Total', type: 'line', data: {{.ThreadsTotalJson}} },
+      { name: 'Running', type: 'line', data: {{.ThreadsRunningJson}} },
+      { name: 'Sleeping', type: 'line', data: {{.ThreadsSleepingJson}} },
+      { name: 'Stopped', type: 'line', data: {{.ThreadsStoppedJson}} },
+      { name: 'Zombie', type: 'line', data: {{.ThreadsZombieJson}} }
+    ]
+  };
+  threadStatesChart.setOption(threadsOption);
+
+  // Load Average
+  var loadAvgChart = echarts.init(document.getElementById('loadAvgChart'));
+  var loadOption = {
+    tooltip: { trigger: 'axis' },
+    legend: { 
+      data: ['1 min', '5 min', '15 min'],
+      bottom: 0
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        saveAsImage: {},
+        dataZoom: {},
+        dataView: { readOnly: false },
+        restore: {}
+      }
+    },
+    xAxis: { type: 'category', data: {{.TimesJson}} },
+    yAxis: { type: 'value', name: 'Load' },
+    series: [
+      { name: '1 min', type: 'line', data: {{.LoadAvg1Json}} },
+      { name: '5 min', type: 'line', data: {{.LoadAvg5Json}} },
+      { name: '15 min', type: 'line', data: {{.LoadAvg15Json}} }
+    ]
+  };
+  loadAvgChart.setOption(loadOption);
+
+  // Add hover emphasis to all charts
+  function configureHoverEmphasis(chart, chartOption) {
+    // Set global emphasis options
+    var emphasisOption = {
+      emphasis: {
+        focus: 'series',
+        lineStyle: {
+          width: 4
+        }
+      }
+    };
+    
+    chart.setOption(emphasisOption);
+  }
+  
+  // Apply hover emphasis to all charts
+  configureHoverEmphasis(perProcessChart, perProcessOption);
+  configureHoverEmphasis(memoryUsageChart, memoryOption);
+  configureHoverEmphasis(totalCpuChart, cpuOption);
+  configureHoverEmphasis(threadStatesChart, threadsOption);
+  configureHoverEmphasis(loadAvgChart, loadOption);
+})();
+</script>
