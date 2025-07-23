@@ -74,7 +74,6 @@ func ParseTopOutput(data []byte) (ReportData, error) {
 
 	var currentSnapshotIdx = -1 // Index of the current snapshot being processed
 
-
 	// Read line by line
 	var lineNumber int
 	for {
@@ -150,46 +149,46 @@ func ParseTopOutput(data []byte) (ReportData, error) {
 		}
 
 		// Check for header line (PID USER ...) and skip
-        if strings.HasPrefix(line, "PID") {
-            continue
-        }
+		if strings.HasPrefix(line, "PID") {
+			continue
+		}
 
-        // Attempt to parse as a process line using fields
-        fields := strings.Fields(line)
-        if len(fields) >= 12 {
-            pid, err := strconv.Atoi(fields[0])
-            if err != nil {
-                log.Printf("Line %d: Error converting PID '%s' to int: %v", lineNumber, fields[0], err)
-            } else {
-                cpu, err := strconv.ParseFloat(fields[8], 64)
-                if err != nil {
-                    log.Printf("Line %d: Error converting CPU '%s' to float: %v", lineNumber, fields[8], err)
-                } else {
-                    mem, err := strconv.ParseFloat(fields[9], 64)
-                    if err != nil {
-                        log.Printf("Line %d: Error converting MEM '%s' to float: %v", lineNumber, fields[9], err)
-                    } else {
-                        process := ProcessData{
-                            PID:     pid,
-                            User:    fields[1],
-                            PR:      parseInt(fields[2]),
-                            NI:      parseInt(fields[3]),
-                            VIRT:    fields[4],
-                            RES:     fields[5],
-                            SHR:     fields[6],
-                            S:       fields[7],
-                            CPU:     cpu,
-                            MEM:     mem,
-                            TIME:    fields[10],
-                            Command: strings.Join(fields[11:], " "),
-                        }
-                        currentSnapshot.Processes = append(currentSnapshot.Processes, process)
-                    }
-                }
-            }
-        } else {
-            log.Printf("Line %d could not be parsed as process data or unrecognized format: %s", lineNumber, line)
-        }
+		// Attempt to parse as a process line using fields
+		fields := strings.Fields(line)
+		if len(fields) >= 12 {
+			pid, err := strconv.Atoi(fields[0])
+			if err != nil {
+				log.Printf("Line %d: Error converting PID '%s' to int: %v", lineNumber, fields[0], err)
+			} else {
+				cpu, err := strconv.ParseFloat(fields[8], 64)
+				if err != nil {
+					log.Printf("Line %d: Error converting CPU '%s' to float: %v", lineNumber, fields[8], err)
+				} else {
+					mem, err := strconv.ParseFloat(fields[9], 64)
+					if err != nil {
+						log.Printf("Line %d: Error converting MEM '%s' to float: %v", lineNumber, fields[9], err)
+					} else {
+						process := ProcessData{
+							PID:     pid,
+							User:    fields[1],
+							PR:      parseInt(fields[2]),
+							NI:      parseInt(fields[3]),
+							VIRT:    fields[4],
+							RES:     fields[5],
+							SHR:     fields[6],
+							S:       fields[7],
+							CPU:     cpu,
+							MEM:     mem,
+							TIME:    fields[10],
+							Command: strings.Join(fields[11:], " "),
+						}
+						currentSnapshot.Processes = append(currentSnapshot.Processes, process)
+					}
+				}
+			}
+		} else {
+			log.Printf("Line %d could not be parsed as process data or unrecognized format: %s", lineNumber, line)
+		}
 	}
 
 	return reportData, nil
@@ -216,12 +215,12 @@ func parseMetadata(line string, metadata *Metadata) error {
 		}
 
 	case key == "%Cpu(s)":
-        var ni, hi, si float64
-        _, err := fmt.Sscanf(value, "%f us, %f sy, %f ni, %f id, %f wa, %f hi, %f si, %f st",
-            &metadata.CPUUser, &metadata.CPUSystem, &ni, &metadata.CPUIdle, &metadata.CPUWait, &hi, &si, &metadata.CPUSteal)
-        if err != nil {
-            return fmt.Errorf("error parsing CPU: %v", err)
-        }
+		var ni, hi, si float64
+		_, err := fmt.Sscanf(value, "%f us, %f sy, %f ni, %f id, %f wa, %f hi, %f si, %f st",
+			&metadata.CPUUser, &metadata.CPUSystem, &ni, &metadata.CPUIdle, &metadata.CPUWait, &hi, &si, &metadata.CPUSteal)
+		if err != nil {
+			return fmt.Errorf("error parsing CPU: %v", err)
+		}
 
 	case key == "MiB Mem":
 		_, err := fmt.Sscanf(value, "%f total, %f free, %f used, %f buff/cache",
@@ -231,32 +230,32 @@ func parseMetadata(line string, metadata *Metadata) error {
 		}
 
 	case key == "MiB Swap":
-        // allow the trailing dot after "used."
-        _, err := fmt.Sscanf(value, "%f total, %f free, %f used.",
-            &metadata.SwapTotal, &metadata.SwapFree, &metadata.SwapUsed)
-        if err != nil {
-            return fmt.Errorf("error parsing Swap: %v", err)
-        }
+		// allow the trailing dot after "used."
+		_, err := fmt.Sscanf(value, "%f total, %f free, %f used.",
+			&metadata.SwapTotal, &metadata.SwapFree, &metadata.SwapUsed)
+		if err != nil {
+			return fmt.Errorf("error parsing Swap: %v", err)
+		}
 
 	case strings.HasPrefix(line, "top -"):
-        // Parse uptime, user count, and load averages from the full top header
-        // e.g. "top - 12:02:03 up  3:07,  0 users,  load average: 3.18, 1.16, 0.41"
-        topRegex := regexp.MustCompile(`^top - \d{2}:\d{2}:\d{2} up\s+([^,]+),\s+(\d+)\s+users?,\s+load average:\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)`)
-        if m := topRegex.FindStringSubmatch(line); len(m) == 6 {
-            metadata.Uptime = "up " + m[1]
-            if u, err := strconv.Atoi(m[2]); err == nil {
-                metadata.Users = u
-            }
-            if f1, err := strconv.ParseFloat(m[3], 64); err == nil {
-                metadata.LoadAvg1 = f1
-            }
-            if f5, err := strconv.ParseFloat(m[4], 64); err == nil {
-                metadata.LoadAvg5 = f5
-            }
-            if f15, err := strconv.ParseFloat(m[5], 64); err == nil {
-                metadata.LoadAvg15 = f15
-            }
-        }
+		// Parse uptime, user count, and load averages from the full top header
+		// e.g. "top - 12:02:03 up  3:07,  0 users,  load average: 3.18, 1.16, 0.41"
+		topRegex := regexp.MustCompile(`^top - \d{2}:\d{2}:\d{2} up\s+([^,]+),\s+(\d+)\s+users?,\s+load average:\s*([\d.]+),\s*([\d.]+),\s*([\d.]+)`)
+		if m := topRegex.FindStringSubmatch(line); len(m) == 6 {
+			metadata.Uptime = "up " + m[1]
+			if u, err := strconv.Atoi(m[2]); err == nil {
+				metadata.Users = u
+			}
+			if f1, err := strconv.ParseFloat(m[3], 64); err == nil {
+				metadata.LoadAvg1 = f1
+			}
+			if f5, err := strconv.ParseFloat(m[4], 64); err == nil {
+				metadata.LoadAvg5 = f5
+			}
+			if f15, err := strconv.ParseFloat(m[5], 64); err == nil {
+				metadata.LoadAvg15 = f15
+			}
+		}
 	}
 
 	return nil

@@ -68,25 +68,25 @@ func TestParseTopOutput(t *testing.T) {
 			expectedTotalProcesses: 15, // 5 processes per snapshot * 3 snapshots
 			expectedFirstSnapshotMetadata: Metadata{
 				ThreadsTotal:    262,
-				ThreadsRunning: 6,
+				ThreadsRunning:  6,
 				ThreadsSleeping: 256,
-				ThreadsStopped: 0,
-				ThreadsZombie:  0,
-				CPUUser:        85.7,
-				CPUSystem:      7.1,
-				CPUIdle:        5.7,
-				MemTotal:       16008.2,
-				MemFree:       10953.7,
-				MemUsed:       3713.5,
-				MemBuffCache:  1341.1,
-				SwapTotal:     0.0,
-				SwapFree:      0.0,
-				SwapUsed:      0.0,
-				LoadAvg1:      3.18,
-				LoadAvg5:      1.16,
-				LoadAvg15:     0.41,
-				Uptime:        "up 3:07",
-				Users:         0,
+				ThreadsStopped:  0,
+				ThreadsZombie:   0,
+				CPUUser:         85.7,
+				CPUSystem:       7.1,
+				CPUIdle:         5.7,
+				MemTotal:        16008.2,
+				MemFree:         10953.7,
+				MemUsed:         3713.5,
+				MemBuffCache:    1341.1,
+				SwapTotal:       0.0,
+				SwapFree:        0.0,
+				SwapUsed:        0.0,
+				LoadAvg1:        3.18,
+				LoadAvg5:        1.16,
+				LoadAvg15:       0.41,
+				Uptime:          "up 3:07",
+				Users:           0,
 			},
 			expectedFirstProcess: &ProcessData{
 				PID:     997,
@@ -105,14 +105,14 @@ func TestParseTopOutput(t *testing.T) {
 			expectedSnapshotTimes: []string{"12:02:03", "12:02:04", "12:02:05"}, // Expected times for each snapshot
 		},
 		{
-				name:                          "Empty Input",
-				input:                         "",
-				expectedNumSnapshots:          0,
-				expectedTotalProcesses:        0,
-				expectedFirstSnapshotMetadata: Metadata{},
-				expectedFirstProcess:          nil,
-				expectedSnapshotTimes:         []string{},
-			},
+			name:                          "Empty Input",
+			input:                         "",
+			expectedNumSnapshots:          0,
+			expectedTotalProcesses:        0,
+			expectedFirstSnapshotMetadata: Metadata{},
+			expectedFirstProcess:          nil,
+			expectedSnapshotTimes:         []string{},
+		},
 		{
 			name:                          "Only Metadata",
 			input:                         "top - 12:00:00\nThreads: 100 total",
@@ -202,33 +202,33 @@ func TestParseTopOutput(t *testing.T) {
 			}
 
 			// Check metadata values for the first snapshot
-		if tt.expectedNumSnapshots > 0 {
-			firstSnapshotMetadata := reportData.Snapshots[0].Metadata
-			expected := tt.expectedFirstSnapshotMetadata
-			actual := firstSnapshotMetadata
-			if actual.ThreadsTotal != expected.ThreadsTotal ||
-				actual.ThreadsRunning != expected.ThreadsRunning ||
-				actual.ThreadsSleeping != expected.ThreadsSleeping ||
-				actual.ThreadsStopped != expected.ThreadsStopped ||
-				actual.ThreadsZombie != expected.ThreadsZombie ||
-				actual.CPUUser != expected.CPUUser ||
-				actual.CPUSystem != expected.CPUSystem ||
-				actual.CPUIdle != expected.CPUIdle ||
-				actual.MemTotal != expected.MemTotal ||
-				actual.MemFree != expected.MemFree ||
-				actual.MemUsed != expected.MemUsed ||
-				actual.MemBuffCache != expected.MemBuffCache ||
-				actual.SwapTotal != expected.SwapTotal ||
-				actual.SwapFree != expected.SwapFree ||
-				actual.SwapUsed != expected.SwapUsed ||
-				actual.LoadAvg1 != expected.LoadAvg1 ||
-				actual.LoadAvg5 != expected.LoadAvg5 ||
-				actual.LoadAvg15 != expected.LoadAvg15 ||
-				actual.Uptime != expected.Uptime ||
-				actual.Users != expected.Users {
-				t.Errorf("Metadata mismatch.\nGot: %+v\nWant: %+v", actual, expected)
+			if tt.expectedNumSnapshots > 0 {
+				firstSnapshotMetadata := reportData.Snapshots[0].Metadata
+				expected := tt.expectedFirstSnapshotMetadata
+				actual := firstSnapshotMetadata
+				if actual.ThreadsTotal != expected.ThreadsTotal ||
+					actual.ThreadsRunning != expected.ThreadsRunning ||
+					actual.ThreadsSleeping != expected.ThreadsSleeping ||
+					actual.ThreadsStopped != expected.ThreadsStopped ||
+					actual.ThreadsZombie != expected.ThreadsZombie ||
+					actual.CPUUser != expected.CPUUser ||
+					actual.CPUSystem != expected.CPUSystem ||
+					actual.CPUIdle != expected.CPUIdle ||
+					actual.MemTotal != expected.MemTotal ||
+					actual.MemFree != expected.MemFree ||
+					actual.MemUsed != expected.MemUsed ||
+					actual.MemBuffCache != expected.MemBuffCache ||
+					actual.SwapTotal != expected.SwapTotal ||
+					actual.SwapFree != expected.SwapFree ||
+					actual.SwapUsed != expected.SwapUsed ||
+					actual.LoadAvg1 != expected.LoadAvg1 ||
+					actual.LoadAvg5 != expected.LoadAvg5 ||
+					actual.LoadAvg15 != expected.LoadAvg15 ||
+					actual.Uptime != expected.Uptime ||
+					actual.Users != expected.Users {
+					t.Errorf("Metadata mismatch.\nGot: %+v\nWant: %+v", actual, expected)
+				}
 			}
-		}
 		})
 	}
 }
