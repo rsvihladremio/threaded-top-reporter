@@ -82,7 +82,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 		for _, p := range s.Processes {
 			if _, exists := processMap[p.PID]; !exists {
 				processMap[p.PID] = make(map[string][]float64)
-				processNames[p.PID] = fmt.Sprintf("%d-%s", p.PID, p.Command)
+				processNames[p.PID] = fmt.Sprintf("%d-%s", p.PID, p.User)
 			}
 		}
 	}
@@ -265,29 +265,29 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	vm := ViewModel{
 		Title:                title,
 		Metadata:             metadata,
-		TimesJson:            template.JS(template.JSEscapeString(string(tj))),       // #nosec G203: safe – marshaled JSON only contains numbers and timestamps
-		CPUUserJson:          template.JS(template.JSEscapeString(string(cuJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		CPUSystemJson:        template.JS(template.JSEscapeString(string(csJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		CPUIdleJson:          template.JS(template.JSEscapeString(string(ciJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		CPUWaitJson:          template.JS(template.JSEscapeString(string(cwJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		CPUStealJson:         template.JS(template.JSEscapeString(string(cstJson))),  // #nosec G203: safe – marshaled JSON only contains numbers
-		MemTotalJson:         template.JS(template.JSEscapeString(string(mtJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		MemFreeJson:          template.JS(template.JSEscapeString(string(mfJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		MemUsedJson:          template.JS(template.JSEscapeString(string(muJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		MemBuffCacheJson:     template.JS(template.JSEscapeString(string(mbcJson))),  // #nosec G203: safe – marshaled JSON only contains numbers
-		SwapTotalJson:        template.JS(template.JSEscapeString(string(stJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		SwapFreeJson:         template.JS(template.JSEscapeString(string(sfJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		SwapUsedJson:         template.JS(template.JSEscapeString(string(suJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		ThreadsTotalJson:     template.JS(template.JSEscapeString(string(ttJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		ThreadsRunningJson:   template.JS(template.JSEscapeString(string(trJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		ThreadsSleepingJson:  template.JS(template.JSEscapeString(string(tsJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		ThreadsStoppedJson:   template.JS(template.JSEscapeString(string(tstJson))),  // #nosec G203: safe – marshaled JSON only contains numbers
-		ThreadsZombieJson:    template.JS(template.JSEscapeString(string(tzJson))),   // #nosec G203: safe – marshaled JSON only contains numbers
-		LoadAvg1Json:         template.JS(template.JSEscapeString(string(la1Json))),  // #nosec G203: safe – marshaled JSON only contains numbers
-		LoadAvg5Json:         template.JS(template.JSEscapeString(string(la5Json))),  // #nosec G203: safe – marshaled JSON only contains numbers
-		LoadAvg15Json:        template.JS(template.JSEscapeString(string(la15Json))), // #nosec G203: safe – marshaled JSON only contains numbers
-		ProcessNamesJson:     template.JS(template.JSEscapeString(string(pnJson))),   // #nosec G203: safe – marshaled JSON only contains numbers and process names
-		ProcessCpuSeriesJson: template.JS(template.JSEscapeString(string(pcsJson))),  // #nosec G203: safe – marshaled JSON only contains numbers
+		TimesJson:            template.JS(string(tj)),       // #nosec G203: safe – marshaled JSON only contains numbers and timestamps
+		CPUUserJson:          template.JS(string(cuJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUSystemJson:        template.JS(string(csJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUIdleJson:          template.JS(string(ciJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUWaitJson:          template.JS(string(cwJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUStealJson:         template.JS(string(cstJson)),  // #nosec G203: safe – marshaled JSON only contains numbers
+		MemTotalJson:         template.JS(string(mtJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		MemFreeJson:          template.JS(string(mfJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		MemUsedJson:          template.JS(string(muJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		MemBuffCacheJson:     template.JS(string(mbcJson)),  // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapTotalJson:        template.JS(string(stJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapFreeJson:         template.JS(string(sfJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapUsedJson:         template.JS(string(suJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsTotalJson:     template.JS(string(ttJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsRunningJson:   template.JS(string(trJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsSleepingJson:  template.JS(string(tsJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsStoppedJson:   template.JS(string(tstJson)),  // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsZombieJson:    template.JS(string(tzJson)),   // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg1Json:         template.JS(string(la1Json)),  // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg5Json:         template.JS(string(la5Json)),  // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg15Json:        template.JS(string(la15Json)), // #nosec G203: safe – marshaled JSON only contains numbers
+		ProcessNamesJson:     template.JS(string(pnJson)),   // #nosec G203: safe – marshaled JSON only contains numbers and process names
+		ProcessCpuSeriesJson: template.JS(string(pcsJson)),  // #nosec G203: safe – marshaled JSON only contains numbers
 		Snapshots:            snaps,
 	}
 

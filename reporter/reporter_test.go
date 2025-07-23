@@ -57,13 +57,26 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	}
 
 	// Check JSON arrays for times and CPUUser
-	expectedTimes := `[\"12:00:00\",\"12:05:00\"]`
+	expectedTimes := `["12:00:00","12:05:00"]`
 	if !strings.Contains(html, expectedTimes) {
 		t.Errorf("times JSON not found; want %s", expectedTimes)
 	}
 	expectedCPU := fmt.Sprintf("[%g,%g]", 1.5, 1.5)
 	if !strings.Contains(html, expectedCPU) {
 		t.Errorf("cpuUser JSON not found; want %s", expectedCPU)
+	}
+
+	expectedSystem := "[0,0]"
+	if !strings.Contains(html, expectedSystem) {
+		t.Errorf("cpuSystem JSON not found; want %s", expectedSystem)
+	}
+
+	// verify our single test process shows up
+	if !strings.Contains(html, "\"123-test\"") {
+		t.Error("processNamesJson not found")
+	}
+	if !strings.Contains(html, `"data":[0,0]`) {
+		t.Error("processCpuSeriesJson not found")
 	}
 
 }

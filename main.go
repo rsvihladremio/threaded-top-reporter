@@ -12,13 +12,20 @@ import (
 	"github.com/rsvihladremio/threaded-top-reporter/reporter"
 )
 
-func main() {
-	// Define command-line flags
-	outputFile := flag.String("o", "ttop.html", "Output HTML file path")
-	reportTitle := flag.String("n", "Threaded Top Report", "Report title")
-	metadata := flag.String("m", "", "Additional metadata as JSON string")
+var (
+	outputFile  string
+	reportTitle string
+	metadata    string
+)
 
+func init() {
+	flag.StringVar(&outputFile, "o", "ttop.html", "Output HTML file path")
+	flag.StringVar(&reportTitle, "n", "Threaded Top Report", "Report title")
+	flag.StringVar(&metadata, "m", "", "Additional metadata as JSON string")
 	flag.Parse()
+}
+
+func main() {
 
 	// Validate input file
 	args := flag.Args()
@@ -44,9 +51,9 @@ func main() {
 	}
 
 	// Generate report
-	if err := reporter.GenerateReport(parsedData, *outputFile, *reportTitle, *metadata); err != nil {
+	if err := reporter.GenerateReport(parsedData, outputFile, reportTitle, metadata); err != nil {
 		log.Fatalf("Error generating report: %v", err)
 	}
 
-	fmt.Printf("report '%s' written to %s\n", *reportTitle, *outputFile)
+	fmt.Printf("report '%s' written to %s\n", reportTitle, outputFile)
 }
