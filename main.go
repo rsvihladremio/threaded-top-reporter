@@ -62,7 +62,7 @@ func main() {
 	// Generate report
 	fileName := filepath.Base(cleanInput)
 	fileHash := fmt.Sprintf("%x", sha256.Sum256(data))
-	if err := reporter.GenerateReport(parsedData, outputFile, reportTitle, metadata, fileName, fileHash); err != nil {
+	if err := reporter.GenerateReport(parsedData, outputFile, reportTitle, metadata, fileName, fileHash, Version); err != nil {
 		log.Fatalf("Error generating report: %v", err)
 	}
 

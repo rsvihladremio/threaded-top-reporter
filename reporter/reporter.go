@@ -29,6 +29,7 @@ type SnapshotView struct {
 type ViewModel struct {
 	Title                string
 	Metadata             string
+	AppVersion           string
 	FileName             string
 	FileHash             string
 	FileHashShort        string
@@ -59,7 +60,7 @@ type ViewModel struct {
 }
 
 // GenerateReport generates an HTML report to outputPath using parsed data.
-func GenerateReport(data parser.ReportData, outputPath, title, metadata, fileName, fileHash string) (err error) {
+func GenerateReport(data parser.ReportData, outputPath, title, metadata, fileName, fileHash, appVersion string) (err error) {
 	// Sanitize output path
 	cleanOutput := filepath.Clean(outputPath)
 	if strings.Contains(cleanOutput, "..") {
@@ -85,7 +86,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata, fileNam
 		for _, p := range s.Processes {
 			if _, exists := processMap[p.PID]; !exists {
 				processMap[p.PID] = make(map[string][]float64)
-				processNames[p.PID] = fmt.Sprintf("%d-%s", p.PID, p.User)
+				processNames[p.PID] = fmt.Sprintf("%s-%d", p.Command, p.PID)
 			}
 		}
 	}
@@ -274,6 +275,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata, fileNam
 	vm := ViewModel{
 		Title:                title,
 		Metadata:             metadata,
+		AppVersion:           appVersion,
 		FileName:             fileName,
 		FileHash:             fileHash,
 		FileHashShort:        fileHashShort,

@@ -65,9 +65,12 @@
     tooltip: { trigger: 'item' },
     legend: {
       type: 'scroll',
-      orient: 'horizontal',
-      data: {{.ProcessNamesJson}},
-      bottom: 0
+      orient: 'vertical',
+      left: 'left'
+    },
+    grid: {
+      left: '18%',
+      containLabel: true
     },
     toolbox: {
       show: true,
@@ -82,6 +85,23 @@
     yAxis: { type: 'value', name: '% CPU' },
     series: {{.ProcessCpuSeriesJson}}
   };
+
+  // Reformat series names to "command (threadId)"
+  perProcessOption.series.forEach(function(s) {
+    var name = s.name;
+    var idx = name.lastIndexOf('-');
+    if (idx !== -1) {
+      var command = name.substring(0, idx);
+      var threadId = name.substring(idx + 1);
+      s.name = command + ' (' + threadId + ')';
+    }
+  });
+  // Sort process legend labels alphabetically
+  var processNames = perProcessOption.series
+    .map(function(s) { return s.name; })
+    .sort(function(a, b) { return a.localeCompare(b, undefined, { sensitivity: 'base' }); });
+  perProcessOption.legend.data = processNames;
+
   perProcessChart.setOption(perProcessOption);
 
   // Memory Usage

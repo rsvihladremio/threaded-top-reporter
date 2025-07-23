@@ -28,7 +28,7 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 			Time:     tm,
 			Metadata: parser.Metadata{CPUUser: 1.5},
 			Processes: []parser.ProcessData{
-				{PID: 123, User: "test"},
+				{PID: 123, User: "test", Command: "test"},
 			},
 		})
 	}
@@ -37,7 +37,7 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	meta := "Some metadata"
 
 	// Run report generation
-	if err := GenerateReport(data, out, title, meta, "input.top", "abc123"); err != nil {
+	if err := GenerateReport(data, out, title, meta, "input.top", "abc123", ""); err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
 	}
 
@@ -72,7 +72,7 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	}
 
 	// verify our single test process shows up
-	if !strings.Contains(html, "\"123-test\"") {
+	if !strings.Contains(html, "\"test-123\"") {
 		t.Error("processNamesJson not found")
 	}
 	if !strings.Contains(html, `"data":[0,0]`) {
@@ -100,7 +100,7 @@ func TestGenerateReport_EscapesTitleAndMetadata(t *testing.T) {
 	badTitle := "<script>alert(\"xss\")</script>"
 	badMeta := "<b>bold</b>"
 	data := parser.ReportData{Snapshots: []parser.Snapshot{}}
-	if err := GenerateReport(data, out, badTitle, badMeta, "input.top", "abc123"); err != nil {
+	if err := GenerateReport(data, out, badTitle, badMeta, "input.top", "abc123", ""); err != nil {
 		t.Fatalf("GenerateReport failed: %v", err)
 	}
 	b, err := os.ReadFile(out)
