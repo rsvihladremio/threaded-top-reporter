@@ -20,8 +20,8 @@ jobs:
           go-version: '1.24.5'
           cache-dependency-path: go.sum
 
-      - name: Verify Go version
-        run: go version
-
+      - name: Run make setup
+        run: make setup
+        
       - name: Run make all
         run: make all
