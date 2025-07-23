@@ -9,9 +9,19 @@ Install is just provided by Go for the time being.
 
 ```bash
 go install github.com/rsvihladremio/threaded-top-reporter@latest
+
+# Or build from source using the Makefile:
+```bash
+make build     # compile the binary to bin/ttoprep
+make lint      # run linters
+make security  # run security checks
+make fmt       # format code
+make test      # run tests
+make all       # run full build, lint, security, fmt, and test
+```
 ```
 
-Minimal CLI is just which will provide a default name of `Threaded Top Report` with the file name `ttop.html`.
+Minimal usage is simple: provide an input file to generate a report with the default title `Threaded Top Report` and output to `ttop.html`.
 
 ```bash
 ttoprep ttop.txt
@@ -21,21 +31,21 @@ report 'Threaded Top Report' written to ttop.html
 Custom Report Output
 
 ```bash
-ttop ttop.txt -o out.html
+ttoprep ttop.txt -o out.html
 report 'Threaded Top Report' written to out.html
 ```
 
 Custom Report Title
 
 ```bash
-ttop ttop.txt -n 'My Report'
+ttoprep ttop.txt -n 'My Report'
 report 'My Report' written to ttop.html
 ```
 
 Extra report metadata
 
 ```bash
-ttop ttop.txt -m '{"id":"40de949f-3741-476a-abcb-3214a14ac15e"}'
+ttoprep ttop.txt -m '{"id":"40de949f-3741-476a-abcb-3214a14ac15e"}'
 report 'Threaded Top Report' written to ttop.html
 ```
 
