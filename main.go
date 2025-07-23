@@ -17,13 +17,21 @@ var (
 	outputFile  string
 	reportTitle string
 	metadata    string
+	Version     string = "dev" // overridden via -ldflags "-X main.Version=…"
 )
 
 func init() {
 	flag.StringVar(&outputFile, "o", "ttop.html", "Output HTML file path")
 	flag.StringVar(&reportTitle, "n", "Threaded Top Report", "Report title")
 	flag.StringVar(&metadata, "m", "", "Additional metadata as JSON string")
+	showVersion := flag.Bool("version", false, "show version and exit")
+
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(Version)
+		os.Exit(0)
+	}
 }
 
 func main() {
