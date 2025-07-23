@@ -1,15 +1,15 @@
 package reporter
 
 import (
-    "fmt"
-    "os"
-    "path/filepath"
-    "strings"
-    "html"
-    "testing"
-    "time"
+	"fmt"
+	"html"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+	"time"
 
-    "github.com/rsvihladremio/threaded-top-reporter/parser"
+	"github.com/rsvihladremio/threaded-top-reporter/parser"
 )
 
 func TestGenerateReport_HappyPath(t *testing.T) {
@@ -57,7 +57,7 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 	}
 
 	// Check JSON arrays for times and CPUUser
-	expectedTimes := `["12:00:00","12:05:00"]`
+	expectedTimes := `[\"12:00:00\",\"12:05:00\"]`
 	if !strings.Contains(html, expectedTimes) {
 		t.Errorf("times JSON not found; want %s", expectedTimes)
 	}
@@ -69,37 +69,37 @@ func TestGenerateReport_HappyPath(t *testing.T) {
 }
 
 func TestTemplatesAreParseable(t *testing.T) {
-    if tmpl.Lookup("base.html") == nil {
-        t.Error("template base.html not found")
-    }
+	if tmpl.Lookup("base.html") == nil {
+		t.Error("template base.html not found")
+	}
 }
 
 func TestGenerateReport_EscapesTitleAndMetadata(t *testing.T) {
-    dir := t.TempDir()
-    out := filepath.Join(dir, "out.html")
-    badTitle := "<script>alert(\"xss\")</script>"
-    badMeta := "<b>bold</b>"
-    data := parser.ReportData{Snapshots: []parser.Snapshot{}}
-    if err := GenerateReport(data, out, badTitle, badMeta); err != nil {
-        t.Fatalf("GenerateReport failed: %v", err)
-    }
-    b, err := os.ReadFile(out)
-    if err != nil {
-        t.Fatalf("failed to read output file: %v", err)
-    }
-    htmlStr := string(b)
-    // Title should be escaped
-    if strings.Contains(htmlStr, badTitle) {
-        t.Error("title not escaped")
-    }
-    if !strings.Contains(htmlStr, html.EscapeString(badTitle)) {
-        t.Error("escaped title not found")
-    }
-    // Metadata should be escaped
-    if strings.Contains(htmlStr, badMeta) {
-        t.Error("metadata not escaped")
-    }
-    if !strings.Contains(htmlStr, html.EscapeString(badMeta)) {
-        t.Error("escaped metadata not found")
-    }
+	dir := t.TempDir()
+	out := filepath.Join(dir, "out.html")
+	badTitle := "<script>alert(\"xss\")</script>"
+	badMeta := "<b>bold</b>"
+	data := parser.ReportData{Snapshots: []parser.Snapshot{}}
+	if err := GenerateReport(data, out, badTitle, badMeta); err != nil {
+		t.Fatalf("GenerateReport failed: %v", err)
+	}
+	b, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+	htmlStr := string(b)
+	// Title should be escaped
+	if strings.Contains(htmlStr, badTitle) {
+		t.Error("title not escaped")
+	}
+	if !strings.Contains(htmlStr, html.EscapeString(badTitle)) {
+		t.Error("escaped title not found")
+	}
+	// Metadata should be escaped
+	if strings.Contains(htmlStr, badMeta) {
+		t.Error("metadata not escaped")
+	}
+	if !strings.Contains(htmlStr, html.EscapeString(badMeta)) {
+		t.Error("escaped metadata not found")
+	}
 }

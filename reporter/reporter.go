@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/rsvihladremio/threaded-top-reporter/parser"
 )
@@ -26,36 +27,43 @@ type SnapshotView struct {
 }
 
 type ViewModel struct {
-	Title              string
-	Metadata           string
-	TimesJson          template.JS
-	CPUUserJson        template.JS
-	CPUSystemJson      template.JS
-	CPUIdleJson        template.JS
-	CPUWaitJson        template.JS
-	CPUStealJson       template.JS
-	MemTotalJson       template.JS
-	MemFreeJson        template.JS
-	MemUsedJson        template.JS
-	MemBuffCacheJson   template.JS
-	SwapTotalJson      template.JS
-	SwapFreeJson       template.JS
-	SwapUsedJson       template.JS
-	ThreadsTotalJson   template.JS
-	ThreadsRunningJson template.JS
-	ThreadsSleepingJson template.JS
-	ThreadsStoppedJson template.JS
-	ThreadsZombieJson  template.JS
-	LoadAvg1Json       template.JS
-	LoadAvg5Json       template.JS
-	LoadAvg15Json      template.JS
-	ProcessNamesJson   template.JS
+	Title                string
+	Metadata             string
+	TimesJson            template.JS
+	CPUUserJson          template.JS
+	CPUSystemJson        template.JS
+	CPUIdleJson          template.JS
+	CPUWaitJson          template.JS
+	CPUStealJson         template.JS
+	MemTotalJson         template.JS
+	MemFreeJson          template.JS
+	MemUsedJson          template.JS
+	MemBuffCacheJson     template.JS
+	SwapTotalJson        template.JS
+	SwapFreeJson         template.JS
+	SwapUsedJson         template.JS
+	ThreadsTotalJson     template.JS
+	ThreadsRunningJson   template.JS
+	ThreadsSleepingJson  template.JS
+	ThreadsStoppedJson   template.JS
+	ThreadsZombieJson    template.JS
+	LoadAvg1Json         template.JS
+	LoadAvg5Json         template.JS
+	LoadAvg15Json        template.JS
+	ProcessNamesJson     template.JS
 	ProcessCpuSeriesJson template.JS
-	Snapshots          []SnapshotView
+	Snapshots            []SnapshotView
 }
 
 // GenerateReport generates an HTML report to outputPath using parsed data.
 func GenerateReport(data parser.ReportData, outputPath, title, metadata string) (err error) {
+	// Sanitize output path
+	cleanOutput := filepath.Clean(outputPath)
+	if strings.Contains(cleanOutput, "..") {
+		return fmt.Errorf("invalid output path: %s", outputPath)
+	}
+	outputPath = cleanOutput
+
 	// build time-series and snapshot views
 	var times []string
 	var cpuUsers, cpuSystem, cpuIdle, cpuWait, cpuSteal []float64
@@ -68,7 +76,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	// Map to track processes by PID and store their CPU usage over time
 	processMap := make(map[int]map[string][]float64)
 	processNames := make(map[int]string)
-	
+
 	// First pass: collect all process names and initialize tracking
 	for _, s := range data.Snapshots {
 		for _, p := range s.Processes {
@@ -83,14 +91,14 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	for _, s := range data.Snapshots {
 		t := s.Time.Format("15:04:05")
 		times = append(times, t)
-		
+
 		// CPU metrics
 		cpuUsers = append(cpuUsers, s.Metadata.CPUUser)
 		cpuSystem = append(cpuSystem, s.Metadata.CPUSystem)
 		cpuIdle = append(cpuIdle, s.Metadata.CPUIdle)
 		cpuWait = append(cpuWait, s.Metadata.CPUWait)
 		cpuSteal = append(cpuSteal, s.Metadata.CPUSteal)
-		
+
 		// Memory metrics
 		memTotal = append(memTotal, s.Metadata.MemTotal)
 		memFree = append(memFree, s.Metadata.MemFree)
@@ -99,25 +107,25 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 		swapTotal = append(swapTotal, s.Metadata.SwapTotal)
 		swapFree = append(swapFree, s.Metadata.SwapFree)
 		swapUsed = append(swapUsed, s.Metadata.SwapUsed)
-		
+
 		// Thread state metrics
 		threadsTotal = append(threadsTotal, s.Metadata.ThreadsTotal)
 		threadsRunning = append(threadsRunning, s.Metadata.ThreadsRunning)
 		threadsSleeping = append(threadsSleeping, s.Metadata.ThreadsSleeping)
 		threadsStopped = append(threadsStopped, s.Metadata.ThreadsStopped)
 		threadsZombie = append(threadsZombie, s.Metadata.ThreadsZombie)
-		
+
 		// Load average metrics
 		loadAvg1 = append(loadAvg1, s.Metadata.LoadAvg1)
 		loadAvg5 = append(loadAvg5, s.Metadata.LoadAvg5)
 		loadAvg15 = append(loadAvg15, s.Metadata.LoadAvg15)
-		
+
 		// Process snapshot details
 		snaps = append(snaps, SnapshotView{
 			Time:         s.Time.Format("2006-01-02 15:04:05"),
 			ProcessCount: len(s.Processes),
 		})
-		
+
 		// Track per-process CPU usage
 		// For each process seen in this snapshot
 		for _, p := range s.Processes {
@@ -125,23 +133,23 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 				processData["cpu"] = append(processData["cpu"], p.CPU)
 			}
 		}
-		
+
 		// Fill in zeros for processes not seen in this snapshot
-	for _, processData := range processMap {
-		snapIdx := len(times) - 1
-		if len(processData["cpu"]) < snapIdx+1 {
-			processData["cpu"] = append(processData["cpu"], 0)
+		for _, processData := range processMap {
+			snapIdx := len(times) - 1
+			if len(processData["cpu"]) < snapIdx+1 {
+				processData["cpu"] = append(processData["cpu"], 0)
+			}
 		}
-	}
 	}
 
 	// Generate process CPU series for ECharts
 	var processNamesList []string
 	var processCpuSeries []map[string]interface{}
-	
+
 	for pid, name := range processNames {
 		processNamesList = append(processNamesList, name)
-		
+
 		series := map[string]interface{}{
 			"name": name,
 			"type": "line",
@@ -149,13 +157,13 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 		}
 		processCpuSeries = append(processCpuSeries, series)
 	}
-	
+
 	// Marshal all data to JSON
 	tj, err := json.Marshal(times)
 	if err != nil {
 		return fmt.Errorf("marshal times: %w", err)
 	}
-	
+
 	// CPU metrics
 	cuJson, err := json.Marshal(cpuUsers)
 	if err != nil {
@@ -177,7 +185,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	if err != nil {
 		return fmt.Errorf("marshal cpu steal series: %w", err)
 	}
-	
+
 	// Memory metrics
 	mtJson, err := json.Marshal(memTotal)
 	if err != nil {
@@ -207,7 +215,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	if err != nil {
 		return fmt.Errorf("marshal swap used series: %w", err)
 	}
-	
+
 	// Thread state metrics
 	ttJson, err := json.Marshal(threadsTotal)
 	if err != nil {
@@ -229,7 +237,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	if err != nil {
 		return fmt.Errorf("marshal threads zombie series: %w", err)
 	}
-	
+
 	// Load average metrics
 	la1Json, err := json.Marshal(loadAvg1)
 	if err != nil {
@@ -243,7 +251,7 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	if err != nil {
 		return fmt.Errorf("marshal load avg 15 series: %w", err)
 	}
-	
+
 	// Process metrics
 	pnJson, err := json.Marshal(processNamesList)
 	if err != nil {
@@ -255,40 +263,40 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	}
 
 	vm := ViewModel{
-		Title:              title,
-		Metadata:           metadata,
-		TimesJson:          template.JS(tj),
-		CPUUserJson:        template.JS(cuJson),
-		CPUSystemJson:      template.JS(csJson),
-		CPUIdleJson:        template.JS(ciJson),
-		CPUWaitJson:        template.JS(cwJson),
-		CPUStealJson:       template.JS(cstJson),
-		MemTotalJson:       template.JS(mtJson),
-		MemFreeJson:        template.JS(mfJson),
-		MemUsedJson:        template.JS(muJson),
-		MemBuffCacheJson:   template.JS(mbcJson),
-		SwapTotalJson:      template.JS(stJson),
-		SwapFreeJson:       template.JS(sfJson),
-		SwapUsedJson:       template.JS(suJson),
-		ThreadsTotalJson:   template.JS(ttJson),
-		ThreadsRunningJson: template.JS(trJson),
-		ThreadsSleepingJson: template.JS(tsJson),
-		ThreadsStoppedJson: template.JS(tstJson),
-		ThreadsZombieJson:  template.JS(tzJson),
-		LoadAvg1Json:       template.JS(la1Json),
-		LoadAvg5Json:       template.JS(la5Json),
-		LoadAvg15Json:      template.JS(la15Json),
-		ProcessNamesJson:   template.JS(pnJson),
-		ProcessCpuSeriesJson: template.JS(pcsJson),
-		Snapshots:          snaps,
+		Title:                title,
+		Metadata:             metadata,
+		TimesJson:            template.JS(template.JSEscapeString(string(tj))),            // #nosec G203: safe – marshaled JSON only contains numbers and timestamps
+		CPUUserJson:          template.JS(template.JSEscapeString(string(cuJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUSystemJson:        template.JS(template.JSEscapeString(string(csJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUIdleJson:          template.JS(template.JSEscapeString(string(ciJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUWaitJson:          template.JS(template.JSEscapeString(string(cwJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		CPUStealJson:         template.JS(template.JSEscapeString(string(cstJson))),       // #nosec G203: safe – marshaled JSON only contains numbers
+		MemTotalJson:         template.JS(template.JSEscapeString(string(mtJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		MemFreeJson:          template.JS(template.JSEscapeString(string(mfJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		MemUsedJson:          template.JS(template.JSEscapeString(string(muJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		MemBuffCacheJson:     template.JS(template.JSEscapeString(string(mbcJson))),      // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapTotalJson:        template.JS(template.JSEscapeString(string(stJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapFreeJson:         template.JS(template.JSEscapeString(string(sfJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		SwapUsedJson:         template.JS(template.JSEscapeString(string(suJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsTotalJson:     template.JS(template.JSEscapeString(string(ttJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsRunningJson:   template.JS(template.JSEscapeString(string(trJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsSleepingJson:  template.JS(template.JSEscapeString(string(tsJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsStoppedJson:   template.JS(template.JSEscapeString(string(tstJson))),       // #nosec G203: safe – marshaled JSON only contains numbers
+		ThreadsZombieJson:    template.JS(template.JSEscapeString(string(tzJson))),        // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg1Json:         template.JS(template.JSEscapeString(string(la1Json))),       // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg5Json:         template.JS(template.JSEscapeString(string(la5Json))),       // #nosec G203: safe – marshaled JSON only contains numbers
+		LoadAvg15Json:        template.JS(template.JSEscapeString(string(la15Json))),      // #nosec G203: safe – marshaled JSON only contains numbers
+		ProcessNamesJson:     template.JS(template.JSEscapeString(string(pnJson))),        // #nosec G203: safe – marshaled JSON only contains numbers and process names
+		ProcessCpuSeriesJson: template.JS(template.JSEscapeString(string(pcsJson))),       // #nosec G203: safe – marshaled JSON only contains numbers
+		Snapshots:            snaps,
 	}
 
 	// ensure directory
-    if err := os.MkdirAll(filepath.Dir(outputPath), 0755); err != nil {
-        return fmt.Errorf("mkdir: %w", err)
-    }
-    var f *os.File
-    f, err = os.Create(outputPath)
+	if err := os.MkdirAll(filepath.Dir(outputPath), 0750); err != nil {
+		return fmt.Errorf("mkdir: %w", err)
+	}
+	var f *os.File
+	f, err = os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("create file: %w", err)
 	}
@@ -299,9 +307,9 @@ func GenerateReport(data parser.ReportData, outputPath, title, metadata string) 
 	}()
 
 	if err = tmpl.ExecuteTemplate(f, "base.html", vm); err != nil {
-        return fmt.Errorf("render template: %w", err)
-    }
+		return fmt.Errorf("render template: %w", err)
+	}
 
 	fmt.Printf("Report written to %s\n", outputPath)
-    return
+	return
 }

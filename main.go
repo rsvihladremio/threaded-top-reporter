@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/rsvihladremio/threaded-top-reporter/parser"   // Import the parser package
 	"github.com/rsvihladremio/threaded-top-reporter/reporter"
@@ -25,8 +27,12 @@ func main() {
 	}
 	inputFile := args[0]
 
-	// Read input file
-	data, err := os.ReadFile(inputFile)
+	// Sanitize and read input file
+	cleanInput := filepath.Clean(inputFile)
+	if strings.Contains(cleanInput, "..") {
+		log.Fatalf("invalid input path: %s", inputFile)
+	}
+	data, err := os.ReadFile(cleanInput) 
 	if err != nil {
 		log.Fatalf("Error reading input file: %v", err)
 	}
