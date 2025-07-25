@@ -2,8 +2,8 @@ package main
 
 import (
 	"crypto/sha256"
-	"flag"
 	"fmt"
+	flag "github.com/spf13/pflag"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,10 +21,10 @@ var (
 )
 
 func init() {
-	flag.StringVar(&outputFile, "o", "ttop.html", "Output HTML file path")
-	flag.StringVar(&reportTitle, "n", "Threaded Top Report", "Report title")
-	flag.StringVar(&metadata, "m", "", "Additional metadata as JSON string")
-	showVersion := flag.Bool("version", false, "show version and exit")
+	flag.StringVarP(&outputFile, "output", "o", "ttop.html", "Output HTML file path")
+	flag.StringVarP(&reportTitle, "name", "n", "Threaded Top Report", "Report title")
+	flag.StringVarP(&metadata, "metadata", "m", "", "Additional metadata as JSON string")
+	showVersion := flag.BoolP("version", "V", false, "show version and exit")
 
 	flag.Parse()
 
